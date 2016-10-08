@@ -18,19 +18,20 @@ namespace TimedShutdownHelper
             InitializeComponent();
             load();
         }
+       // DateTime now = DateTime.Parse("2016-09-09 01:01:01");
         DateTime now = DateTime.Now;
         int state = 0;//状态指示，确定目前滑动条对应的是哪个文本框，1 设定小时；2 设定分钟；3 倒计时小时； 4倒计时分钟
         int setHour, setMinute, countDownHour=0, countDownMinute=0;
         public void load()
         {
-            this.richTextBox1.SelectionAlignment = HorizontalAlignment.Center;
-            this.richTextBox2.SelectionAlignment = HorizontalAlignment.Center;
-            this.richTextBox3.SelectionAlignment = HorizontalAlignment.Center;
-            this.richTextBox4.SelectionAlignment = HorizontalAlignment.Center;
+            //this.richTextBox1.SelectionAlignment = HorizontalAlignment.Center;
+            //this.richTextBox2.SelectionAlignment = HorizontalAlignment.Center;
+            //this.richTextBox3.SelectionAlignment = HorizontalAlignment.Center;
+            //this.richTextBox4.SelectionAlignment = HorizontalAlignment.Center;
             setHour = now.Hour;
             setMinute = now.Minute;
-            richTextBox1.Text = now.Hour.ToString();
-            richTextBox2.Text = now.Minute.ToString();
+            richTextBox1.Text = now.Hour.ToString("00");
+            richTextBox2.Text = now.Minute.ToString("00");
             richTextBox1.SelectionColor = Color.Blue;
             richTextBox2.SelectionColor = Color.Blue;
             richTextBox3.SelectionColor = Color.Blue;
@@ -117,10 +118,10 @@ namespace TimedShutdownHelper
             switch (state)
             {
                 case 1:
-                    richTextBox1.Text = trackBar1.Value.ToString();
+                    richTextBox1.Text = trackBar1.Value.ToString("00");
                     break;
                 case 2:
-                    richTextBox2.Text = trackBar1.Value.ToString();
+                    richTextBox2.Text = trackBar1.Value.ToString("00");
                     break;            
                 default:
                     break;
@@ -133,10 +134,10 @@ namespace TimedShutdownHelper
             switch (state)
             {               
                 case 3:
-                    richTextBox3.Text = trackBar2.Value.ToString();
+                    richTextBox3.Text = trackBar2.Value.ToString("00");
                     break;
                 case 4:
-                    richTextBox4.Text = trackBar2.Value.ToString();
+                    richTextBox4.Text = trackBar2.Value.ToString("00");
                     break;
                 default:
                     break;
@@ -302,6 +303,164 @@ namespace TimedShutdownHelper
              string message = "已取消自动关机设定";
              notifyIcon1.ShowBalloonTip(100, "系统提示", message, ToolTipIcon.Info);
          }
+
+        //处理输入验证
+         private void richTextBox1_KeyPress(object sender, KeyPressEventArgs e)
+         {
+             if(!(Char.IsNumber(e.KeyChar))&&e.KeyChar!=8)
+             {
+                 e.Handled = true;
+             }
+         }
+         private void richTextBox2_KeyPress(object sender, KeyPressEventArgs e)
+         {
+             if (!(Char.IsNumber(e.KeyChar)) && e.KeyChar != 8)
+             {
+                 e.Handled = true;
+             }
+         }
+         private void richTextBox3_KeyPress(object sender, KeyPressEventArgs e)
+         {
+             if (!(Char.IsNumber(e.KeyChar)) && e.KeyChar != 8)
+             {
+                 e.Handled = true;
+             }
+         }
+         private void richTextBox4_KeyPress(object sender, KeyPressEventArgs e)
+         {
+             if (!(Char.IsNumber(e.KeyChar)) && e.KeyChar != 8)
+             {
+                 e.Handled = true;
+             }
+         }
+
+
+
+         //通过textchanged进一步验证输入
+         private void richTextBox1_TextChanged(object sender, EventArgs e)
+         {
+             string nowtext = richTextBox1.Text;
+             int tmpHour=0;            
+             try
+             {
+                  tmpHour = Convert.ToInt32(nowtext);
+             }
+             catch (Exception)
+             {
+                 richTextBox1.Text = ""+setHour;
+                 richTextBox1.SelectAll();
+             }
+             if(tmpHour>=24)
+             {
+                 richTextBox1.Text = "" + setHour;
+                 richTextBox1.SelectAll();
+             }
+             
+         }
+
+         private void richTextBox2_TextChanged(object sender, EventArgs e)
+         {
+             string nowtext = richTextBox2.Text;
+             int tmpMinute = 0;
+             try
+             {
+                 tmpMinute = Convert.ToInt32(nowtext);
+             }
+             catch (Exception)
+             {
+                 richTextBox2.Text = "" + setMinute;
+                 richTextBox2.SelectAll();
+             }
+             if (tmpMinute >= 60)
+             {
+                 richTextBox2.Text = "" + setMinute;
+                 richTextBox2.SelectAll();
+             }
+            
+         }
+
+         private void richTextBox3_TextChanged(object sender, EventArgs e)
+         {
+             string nowtext = richTextBox3.Text;
+             int tmpHour = 0;
+             try
+             {
+                 tmpHour = Convert.ToInt32(nowtext);
+             }
+             catch (Exception)
+             {
+                 richTextBox3.Text = "" + countDownHour;
+                 richTextBox3.SelectAll();
+             }
+             if (tmpHour >= 24)
+             {
+                 richTextBox3.Text = "" + countDownHour;
+                 richTextBox3.SelectAll();
+             }            
+         }
+
+         private void richTextBox4_TextChanged(object sender, EventArgs e)
+         {
+             string nowtext = richTextBox4.Text;
+             int tmpMinute = 0;
+             try
+             {
+                 tmpMinute = Convert.ToInt32(nowtext);
+             }
+             catch (Exception)
+             {
+                 richTextBox4.Text = "" + countDownMinute;
+                 richTextBox4.SelectAll();
+             }
+             if (tmpMinute >= 60)
+             {
+                 richTextBox4.Text = "" + countDownMinute;
+                 richTextBox4.SelectAll();
+             }             
+         }
+
+         private void richTextBox1_Leave(object sender, EventArgs e)
+         {
+             int tmp = 0;
+             tmp = Convert.ToInt32(richTextBox1.Text);
+             if (tmp < 10)
+             {
+                 richTextBox1.Text = "0" + tmp;
+             }
+         }
+
+         private void richTextBox2_Leave(object sender, EventArgs e)
+         {
+             int tmp = 0;
+             tmp = Convert.ToInt32(richTextBox2.Text);
+             if (tmp < 10)
+             {
+                 richTextBox2.Text = "0" + tmp;
+             }
+         }
+         private void richTextBox3_Leave(object sender, EventArgs e)
+         {
+             int tmp = 0;
+             tmp = Convert.ToInt32(richTextBox3.Text);
+             if(tmp<10)
+             {
+                 richTextBox3.Text = "0" + tmp;
+             }
+         }
+
+         private void richTextBox4_Leave(object sender, EventArgs e)
+         {
+             int tmp = 0;
+             tmp = Convert.ToInt32(richTextBox4.Text);
+             if (tmp < 10)
+             {
+                 richTextBox4.Text = "0" + tmp;
+             }
+         }
+
+
+
+
                             
     }
 }
