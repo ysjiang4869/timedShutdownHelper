@@ -42,7 +42,7 @@ namespace TimedShutdownHelper
             label1.Text = date;
             string time = String.Format("{0}时{1}分{2}秒", now.Hour, now.Minute, now.Second);
             label2.Text = time;
-            setTimeMinute();//起始设定滑动条关联分钟，避免滑动无感应的缺点
+        
         }
         private void readtime()
         {           
@@ -511,6 +511,16 @@ namespace TimedShutdownHelper
              {
                  richTextBox4.Text = "0" + tmp;
              }
+         }
+        //默认滚动条关联分
+         private void tabPage1_Enter(object sender, EventArgs e)
+         {
+             setTimeMinute();//起始设定滑动条关联分钟，避免滑动无感应的缺点
+         }
+
+         private void tabPage2_Enter(object sender, EventArgs e)
+         {
+             countDownTimeMinute();
          }
 
 

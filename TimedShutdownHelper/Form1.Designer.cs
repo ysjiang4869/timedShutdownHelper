@@ -138,6 +138,7 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "指定时间";
             this.tabPage1.UseVisualStyleBackColor = true;
+            this.tabPage1.Enter += new System.EventHandler(this.tabPage1_Enter);
             // 
             // button1
             // 
@@ -224,6 +225,7 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "倒计时";
             this.tabPage2.UseVisualStyleBackColor = true;
+            this.tabPage2.Enter += new System.EventHandler(this.tabPage2_Enter);
             // 
             // button2
             // 
