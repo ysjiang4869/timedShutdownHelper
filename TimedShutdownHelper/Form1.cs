@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,16 +19,17 @@ namespace TimedShutdownHelper
             InitializeComponent();
             load();
         }
+        string path = System.Environment.CurrentDirectory+"\\set.ini";
+        IniRW iniRW;
        // DateTime now = DateTime.Parse("2016-09-09 01:01:01");
         DateTime now = DateTime.Now;
         int state = 0;//状态指示，确定目前滑动条对应的是哪个文本框，1 设定小时；2 设定分钟；3 倒计时小时； 4倒计时分钟
         int setHour, setMinute, countDownHour=0, countDownMinute=0;
+        bool timestate = false;//false 当前未设定；true 当前已设定
         public void load()
         {
-            //this.richTextBox1.SelectionAlignment = HorizontalAlignment.Center;
-            //this.richTextBox2.SelectionAlignment = HorizontalAlignment.Center;
-            //this.richTextBox3.SelectionAlignment = HorizontalAlignment.Center;
-            //this.richTextBox4.SelectionAlignment = HorizontalAlignment.Center;
+            iniRW = new IniRW(path);
+            readtime();
             setHour = now.Hour;
             setMinute = now.Minute;
             richTextBox1.Text = now.Hour.ToString("00");
@@ -40,6 +42,39 @@ namespace TimedShutdownHelper
             label1.Text = date;
             string time = String.Format("{0}时{1}分{2}秒", now.Hour, now.Minute, now.Second);
             label2.Text = time;
+            setTimeMinute();//起始设定滑动条关联分钟，避免滑动无感应的缺点
+        }
+        private void readtime()
+        {           
+            if(iniRW.ExistINIFile())
+            {
+                string closetime = iniRW.IniReadValue("1", "closetime");
+                DateTime time = DateTime.Parse(closetime);
+                TimeSpan ss = time - now;
+                if (ss.TotalSeconds > 0)
+                {
+                    label7.Text = time.Hour.ToString("00");
+                    label8.Text = time.Minute.ToString("00");
+                    timestate = true;
+                }
+                else
+                {
+                    File.Delete(path);
+                }
+            }
+        }
+
+        private void writetime(DateTime time)
+        {
+            timestate = true;
+            label7.Text = time.Hour.ToString("00");
+            label8.Text = time.Minute.ToString("00");
+            if (!iniRW.ExistINIFile())
+            {
+               FileStream fs= File.Create(path);
+               fs.Close();
+            }
+            iniRW.IniWriteValue("1", "closetime", time.ToString("yyyy-MM-dd HH:mm:ss"));
         }
         public void setTimeHour() //设定trackbar为设定时间的小时
         {
@@ -147,38 +182,55 @@ namespace TimedShutdownHelper
 
         private void button1_Click(object sender, EventArgs e) //执行
         {
-            setHour= Convert.ToInt32(richTextBox1.Text);
-            setMinute= Convert.ToInt32(richTextBox2.Text);
-            DateTime setTime = new DateTime(now.Year, now.Month, now.Day, setHour, setMinute,now.Second);
-            TimeSpan span = setTime - now;
-            double milliSeconds = span.TotalSeconds;
-            milliSeconds= Math.Round(milliSeconds, 0);
-            if(milliSeconds<=0)
+            if (!timestate)
             {
-                setTime.AddDays(1);
-                span = setTime - now;
-                milliSeconds = span.TotalSeconds;
+                setHour = Convert.ToInt32(richTextBox1.Text);
+                setMinute = Convert.ToInt32(richTextBox2.Text);
+                DateTime setTime = new DateTime(now.Year, now.Month, now.Day, setHour, setMinute, now.Second);
+                TimeSpan span = setTime - now;
+                double milliSeconds = span.TotalSeconds;
                 milliSeconds = Math.Round(milliSeconds, 0);
+                if (milliSeconds <= 0)
+                {
+                    setTime.AddDays(1);
+                    span = setTime - now;
+                    milliSeconds = span.TotalSeconds;
+                    milliSeconds = Math.Round(milliSeconds, 0);
+                }
+                //执行关机设定
+                string cmd = String.Format(@"shutdown -s -t {0}", milliSeconds);
+                string output = "";
+                RunCmd(cmd, out output);
+                string message = "已经设定在" + setHour + "时" + setMinute + "分自动关机";
+                notifyIcon1.ShowBalloonTip(100, "系统提示", message, ToolTipIcon.Info);
+                writetime(setTime);
             }
-            //执行关机设定
-            string cmd = String.Format(@"shutdown -s -t {0}", milliSeconds);
-            string output = "";
-            RunCmd(cmd, out output);
-            string message = "已经设定在" + setHour + "时" + setMinute + "分自动关机";
-            notifyIcon1.ShowBalloonTip(100, "系统提示", message, ToolTipIcon.Info);                                              
+            else
+            {
+                MessageBox.Show("已经设定时间，请先取消再重新设定");
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            countDownHour = Convert.ToInt32(richTextBox3.Text);
-            countDownMinute = Convert.ToInt32(richTextBox4.Text);
-            double milliSeconds = (countDownHour * 3600 + countDownMinute * 60);
-            //执行关机设定 
-            string cmd = String.Format(@"shutdown -s -t {0}",milliSeconds);
-            string output = "";
-            RunCmd(cmd, out output);
-            string message = "已经设定在" + countDownHour + "小时" + countDownMinute + "分后自动关机";
-            notifyIcon1.ShowBalloonTip(100, "系统提示", message, ToolTipIcon.Info);
+            if (!timestate)
+            {
+                countDownHour = Convert.ToInt32(richTextBox3.Text);
+                countDownMinute = Convert.ToInt32(richTextBox4.Text);
+                double Seconds = (countDownHour * 3600 + countDownMinute * 60);
+                //执行关机设定 
+                string cmd = String.Format(@"shutdown -s -t {0}", Seconds);
+                string output = "";
+                RunCmd(cmd, out output);
+                string message = "已经设定在" + countDownHour + "小时" + countDownMinute + "分后自动关机";
+                notifyIcon1.ShowBalloonTip(100, "系统提示", message, ToolTipIcon.Info);
+                DateTime setTime = DateTime.Now.AddSeconds(Seconds);
+                writetime(setTime);
+            }
+            else
+            {
+                MessageBox.Show("已经设定时间，请先取消再重新设定");
+            }
         }
 
         bool closestate=false;
@@ -229,21 +281,14 @@ namespace TimedShutdownHelper
 
         private void CancelToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string cmd = String.Format(@"shutdown -a");
-            string output = "";
-            RunCmd(cmd, out output);
-            string message = "已取消自动关机设定";
-            notifyIcon1.ShowBalloonTip(100, "系统提示", message, ToolTipIcon.Info);
+            cancelTime();
         }
 
         private void CloseToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // 关闭所有的线程
-            string cmd = String.Format(@"shutdown -a");
-            string output = "";
-            RunCmd(cmd, out output);
-            string message = "已取消自动关机设定";
-            notifyIcon1.ShowBalloonTip(100, "系统提示", message, ToolTipIcon.Info);
+
+            cancelTime();
             closestate = true;
             this.Dispose();
             this.Close();
@@ -257,7 +302,21 @@ namespace TimedShutdownHelper
             this.Close();
         }
 
-
+        private void cancelTime()
+        {
+            if (timestate)
+            {
+                timestate = false;
+                string cmd = String.Format(@"shutdown -a");
+                string output = "";
+                RunCmd(cmd, out output);
+                string message = "已取消自动关机设定";
+                notifyIcon1.ShowBalloonTip(100, "系统提示", message, ToolTipIcon.Info);
+                File.Delete(path);
+                label7.Text = "00";
+                label8.Text = "00";
+            }
+        }
          private static string CmdPath = @"C:\Windows\System32\cmd.exe"; 
         /// <summary>
         /// 执行cmd命令
@@ -297,11 +356,7 @@ namespace TimedShutdownHelper
 
          private void button3_Click(object sender, EventArgs e)//取消已有定时
          {
-             string cmd = String.Format(@"shutdown -a");
-             string output = "";
-             RunCmd(cmd, out output);
-             string message = "已取消自动关机设定";
-             notifyIcon1.ShowBalloonTip(100, "系统提示", message, ToolTipIcon.Info);
+             cancelTime();
          }
 
         //处理输入验证

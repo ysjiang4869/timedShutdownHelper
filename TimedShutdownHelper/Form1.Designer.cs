@@ -57,6 +57,11 @@
             this.CancelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CloseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.QuitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.panel5 = new System.Windows.Forms.Panel();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -68,6 +73,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
+            this.panel5.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -294,6 +300,8 @@
             // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.label6);
+            this.tabPage3.Controls.Add(this.panel5);
             this.tabPage3.Controls.Add(this.button3);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
@@ -305,7 +313,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(126, 78);
+            this.button3.Location = new System.Drawing.Point(131, 140);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(133, 31);
             this.button3.TabIndex = 8;
@@ -359,6 +367,56 @@
             this.QuitToolStripMenuItem.Text = "仅退出";
             this.QuitToolStripMenuItem.Click += new System.EventHandler(this.QuitToolStripMenuItem_Click);
             // 
+            // panel5
+            // 
+            this.panel5.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel5.Controls.Add(this.label8);
+            this.panel5.Controls.Add(this.label7);
+            this.panel5.Controls.Add(this.label5);
+            this.panel5.Location = new System.Drawing.Point(85, 43);
+            this.panel5.Name = "panel5";
+            this.panel5.Size = new System.Drawing.Size(243, 58);
+            this.panel5.TabIndex = 9;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label5.Location = new System.Drawing.Point(104, 15);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(29, 19);
+            this.label5.TabIndex = 5;
+            this.label5.Text = "：";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 12);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(77, 12);
+            this.label6.TabIndex = 10;
+            this.label6.Text = "预定关机时间";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label7.Location = new System.Drawing.Point(60, 17);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(31, 19);
+            this.label7.TabIndex = 6;
+            this.label7.Text = "00";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label8.Location = new System.Drawing.Point(135, 17);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(31, 19);
+            this.label8.TabIndex = 7;
+            this.label8.Text = "00";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -368,6 +426,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "定时关机助手";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.panel1.ResumeLayout(false);
@@ -385,7 +444,10 @@
             this.panel4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).EndInit();
             this.tabPage3.ResumeLayout(false);
+            this.tabPage3.PerformLayout();
             this.contextMenuStrip1.ResumeLayout(false);
+            this.panel5.ResumeLayout(false);
+            this.panel5.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -419,6 +481,11 @@
         private System.Windows.Forms.ToolStripMenuItem QuitToolStripMenuItem;
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Panel panel5;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label7;
     }
 }
 
