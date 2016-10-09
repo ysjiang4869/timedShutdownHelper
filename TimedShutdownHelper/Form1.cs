@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TimedShutdownHelper.Properties;
 
 namespace TimedShutdownHelper
 {
@@ -42,7 +43,13 @@ namespace TimedShutdownHelper
             label1.Text = date;
             string time = String.Format("{0}时{1}分{2}秒", now.Hour, now.Minute, now.Second);
             label2.Text = time;
-        
+            //设置某些组件的背景色
+            richTextBox1.BackColor = Color.FromArgb(234, 247, 255);
+            richTextBox2.BackColor = Color.FromArgb(234, 247, 255);
+            richTextBox3.BackColor = Color.FromArgb(234, 247, 255);
+            richTextBox4.BackColor = Color.FromArgb(234, 247, 255);
+            trackBar1.BackColor = Color.FromArgb(234, 247, 255);
+            trackBar2.BackColor = Color.FromArgb(234, 247, 255);
         }
         private void readtime()
         {           
@@ -522,10 +529,7 @@ namespace TimedShutdownHelper
          {
              countDownTimeMinute();
          }
-
-
-
-
+        
                             
     }
 }
