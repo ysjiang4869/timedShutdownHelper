@@ -18,9 +18,11 @@ namespace TimedShutdownHelper
         public Form1()
         {
             InitializeComponent();
+            WindowState = FormWindowState.Normal;
             load();
         }
-        string path = System.Environment.CurrentDirectory+"\\set.ini";
+        private static string folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\shutdownhelper";
+        private static string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\shutdownhelper\\settings.ini";
         IniRW iniRW;
        // DateTime now = DateTime.Parse("2016-09-09 01:01:01");
         DateTime now = DateTime.Now;
@@ -29,8 +31,10 @@ namespace TimedShutdownHelper
         bool timestate = false;//false 当前未设定；true 当前已设定
         public void load()
         {
+            Directory.CreateDirectory(folder);            
             iniRW = new IniRW(path);
             readtime();
+            notifyIcon1.Visible = false;
             setHour = now.Hour;
             setMinute = now.Minute;
             richTextBox1.Text = now.Hour.ToString("00");
@@ -39,17 +43,44 @@ namespace TimedShutdownHelper
             richTextBox2.SelectionColor = Color.Blue;
             richTextBox3.SelectionColor = Color.Blue;
             richTextBox4.SelectionColor = Color.Blue;
-            string date = String.Format("{0}年{1}月{2}日", now.Year, now.Month, now.Day);
-            label1.Text = date;
-            string time = String.Format("{0}时{1}分{2}秒", now.Hour, now.Minute, now.Second);
-            label2.Text = time;
+            setCurrentTime();
             //设置某些组件的背景色
             richTextBox1.BackColor = Color.FromArgb(234, 247, 255);
             richTextBox2.BackColor = Color.FromArgb(234, 247, 255);
             richTextBox3.BackColor = Color.FromArgb(234, 247, 255);
             richTextBox4.BackColor = Color.FromArgb(234, 247, 255);
             trackBar1.BackColor = Color.FromArgb(234, 247, 255);
-            trackBar2.BackColor = Color.FromArgb(234, 247, 255);
+            trackBar2.BackColor = Color.FromArgb(234, 247, 255);            
+        }
+        TabPage page;
+        ToolStripItem itema, itemb;
+        private void updateTimedState(bool state)
+        {
+            timestate = state;
+            if (!state)
+            {
+                page= tabControl1.TabPages[2];
+                tabControl1.TabPages.Remove(page);
+                itema = contextMenuStrip1.Items[2];
+                itemb = contextMenuStrip1.Items[3];
+                contextMenuStrip1.Items.Remove(itema);
+                contextMenuStrip1.Items.Remove(itemb);
+            }
+            else
+            {
+                if(page!=null)tabControl1.TabPages.Add(page);
+                if (itema != null) contextMenuStrip1.Items.Add(itema);
+                if (itemb != null) contextMenuStrip1.Items.Add(itemb);
+            }
+        }
+
+        private void setCurrentTime()
+        {
+            DateTime now = DateTime.Now;
+            string date = String.Format("{0}年{1}月{2}日", now.Year, now.Month, now.Day);
+            label1.Text = date;
+            string time = String.Format("{0}时{1}分{2}秒", now.Hour, now.Minute, now.Second);
+            label2.Text = time;
         }
         private void readtime()
         {           
@@ -69,15 +100,16 @@ namespace TimedShutdownHelper
                     File.Delete(path);
                 }
             }
+            updateTimedState(timestate);
         }
 
         private void writetime(DateTime time)
         {
-            timestate = true;
+            updateTimedState(true);
             label7.Text = time.Hour.ToString("00");
             label8.Text = time.Minute.ToString("00");
             if (!iniRW.ExistINIFile())
-            {
+            {              
                FileStream fs= File.Create(path);
                fs.Close();
             }
@@ -240,50 +272,34 @@ namespace TimedShutdownHelper
             }
         }
 
-        bool closestate=false;
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e) //点×后放到托盘，不关闭，如果是托盘关闭则关闭
-        {
-            if(!closestate)
-            {
-                WindowState = FormWindowState.Minimized;
-                //隐藏任务栏区图标
-                this.ShowInTaskbar = false;
-                //图标显示在托盘区
-                notifyIcon1.Visible = true;
-                notifyIcon1.ShowBalloonTip(100, "系统提示", "已最小化，点我进行操作", ToolTipIcon.Info);
-                e.Cancel = true;
-            }
-            else
-            {
-                notifyIcon1.Dispose();
-            }
-        }
+    
+    
 
-        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void notifyIcon1_MouseClick(object sender, MouseEventArgs e)
         {
-            if (WindowState == FormWindowState.Minimized)
+            if (e.Button == MouseButtons.Left)
             {
-                //还原窗体显示    
-                WindowState = FormWindowState.Normal;
-                //激活窗体并给予它焦点
-                this.Activate();
-                //任务栏区显示图标
-                this.ShowInTaskbar = true;
-                //托盘区图标隐藏
-              //  notifyIcon1.Visible = false;
+                showForm();
             }
         }
 
         private void ShowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            showForm();
+        }
+
+        private void showForm()
         {
             //还原窗体显示    
             WindowState = FormWindowState.Normal;
             //激活窗体并给予它焦点
             this.Activate();
             //任务栏区显示图标
-            this.ShowInTaskbar = true;
+            //this.ShowInTaskbar = true;
             //托盘区图标隐藏
-          //  notifyIcon1.Visible = false;
+            notifyIcon1.Visible = false;
+
+            timer1.Enabled = true;
         }
 
         private void CancelToolStripMenuItem_Click(object sender, EventArgs e)
@@ -296,7 +312,6 @@ namespace TimedShutdownHelper
             // 关闭所有的线程
 
             cancelTime();
-            closestate = true;
             this.Dispose();
             this.Close();
         }
@@ -304,7 +319,7 @@ namespace TimedShutdownHelper
         private void QuitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // 关闭所有的线程
-            closestate = true;
+           
             this.Dispose();
             this.Close();
         }
@@ -312,8 +327,7 @@ namespace TimedShutdownHelper
         private void cancelTime()
         {
             if (timestate)
-            {
-                timestate = false;
+            {                
                 string cmd = String.Format(@"shutdown -a");
                 string output = "";
                 RunCmd(cmd, out output);
@@ -322,6 +336,7 @@ namespace TimedShutdownHelper
                 File.Delete(path);
                 label7.Text = "00";
                 label8.Text = "00";
+                updateTimedState(false);
             }
         }
          private static string CmdPath = @"C:\Windows\System32\cmd.exe"; 
@@ -510,7 +525,31 @@ namespace TimedShutdownHelper
              }
          }
 
-         private void richTextBox4_Leave(object sender, EventArgs e)
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            setCurrentTime();
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+                    
+
+        }
+
+        private void Form1_Deactivate(object sender, EventArgs e)
+        {
+            if (WindowState == FormWindowState.Minimized)
+            {                
+                timer1.Enabled = false;
+                //隐藏任务栏区图标
+                this.ShowInTaskbar = false;
+                //图标显示在托盘区
+                notifyIcon1.Visible = true;
+                //notifyIcon1.ShowBalloonTip(100, "系统提示", "已最小化，点我进行操作", ToolTipIcon.Info);
+            }
+        }
+
+        private void richTextBox4_Leave(object sender, EventArgs e)
          {
              int tmp = 0;
              tmp = Convert.ToInt32(richTextBox4.Text);
